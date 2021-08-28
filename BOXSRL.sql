@@ -15,70 +15,72 @@ CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
 USE `mydb` ;
 
 -- -----------------------------------------------------
--- Table `mydb`.`Almacen`
+-- Table `mydb`.`almacen`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Almacen` (
+CREATE TABLE IF NOT EXISTS `mydb`.`almacen` (
   `IDAlmacen` INT NOT NULL,
   `Direccion` VARCHAR(45) NOT NULL,
   `Mail` VARCHAR(45) NOT NULL,
   `Telefono` VARCHAR(45) NOT NULL,
   `Codigo Postal` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`IDAlmacen`))
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Articulos`
+-- Table `mydb`.`articulos`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Articulos` (
+CREATE TABLE IF NOT EXISTS `mydb`.`articulos` (
   `IDArticulos` INT NOT NULL,
   `IDAlmacen` INT NOT NULL,
   `Descripcion` VARCHAR(45) NOT NULL,
   `Stock` INT NOT NULL,
   `U.M` VARCHAR(10) NOT NULL,
   `P. Unitario` INT NOT NULL,
-  `Tipo` VARCHAR(30) NULL,
+  `Tipo` VARCHAR(30) NULL DEFAULT NULL,
   PRIMARY KEY (`IDArticulos`),
-  INDEX `IDAlmacen` (`IDAlmacen` ASC) ,
+  INDEX `IDAlmacen` (`IDAlmacen` ASC) VISIBLE,
   CONSTRAINT `IDAlmacen`
     FOREIGN KEY (`IDAlmacen`)
-    REFERENCES `mydb`.`Almacen` (`IDAlmacen`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `mydb`.`almacen` (`IDAlmacen`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Proveedores`
+-- Table `mydb`.`clientes`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Proveedores` (
-  `IDProveedores` INT NOT NULL,
+CREATE TABLE IF NOT EXISTS `mydb`.`clientes` (
+  `IDCliente` INT NOT NULL,
   `Nombre` VARCHAR(45) NOT NULL,
   `Telefono` VARCHAR(45) NOT NULL,
-  `Direccion` VARCHAR(30) NOT NULL,
+  `Direccion` VARCHAR(45) NOT NULL,
   `Contactos` VARCHAR(45) NOT NULL,
   `Mail` VARCHAR(45) NOT NULL,
   `CUIT` INT NOT NULL,
-  PRIMARY KEY (`IDProveedores`))
-ENGINE = InnoDB;
+  PRIMARY KEY (`IDCliente`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Sucursal`
+-- Table `mydb`.`sucursal`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Sucursal` (
+CREATE TABLE IF NOT EXISTS `mydb`.`sucursal` (
   `IDSucursal` INT NOT NULL,
   `Codigo Postal` INT NOT NULL,
   `Direccion` VARCHAR(45) NOT NULL,
   `Telefono` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`IDSucursal`))
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Empleados`
+-- Table `mydb`.`empleados`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Empleados` (
+CREATE TABLE IF NOT EXISTS `mydb`.`empleados` (
   `IDEmpleados` INT NOT NULL,
   `IDSucursal` INT NOT NULL,
   `Nombre` VARCHAR(45) NOT NULL,
@@ -89,46 +91,55 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Empleados` (
   `DNI` INT NOT NULL,
   `CUIT` INT NOT NULL,
   PRIMARY KEY (`IDEmpleados`),
-  INDEX `IDSucursal` (`IDSucursal` ASC) ,
+  INDEX `IDSucursal` (`IDSucursal` ASC) VISIBLE,
   CONSTRAINT `IDSucursal`
     FOREIGN KEY (`IDSucursal`)
-    REFERENCES `mydb`.`Sucursal` (`IDSucursal`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `mydb`.`sucursal` (`IDSucursal`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Clientes`
+-- Table `mydb`.`factura_cabecera`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Clientes` (
+CREATE TABLE IF NOT EXISTS `mydb`.`factura_cabecera` (
+  `IDFactura` INT NOT NULL,
   `IDCliente` INT NOT NULL,
-  `Nombre` VARCHAR(45) NOT NULL,
-  `Telefono` VARCHAR(45) NOT NULL,
+  `IDEmpleado` INT NOT NULL,
+  `FechaCreacion` DATE NOT NULL,
+  `FechaEntrega` DATE NOT NULL,
   `Direccion` VARCHAR(45) NOT NULL,
-  `Contactos` VARCHAR(45) NOT NULL,
-  `Mail` VARCHAR(45) NOT NULL,
-  `CUIT` INT NOT NULL,
-  PRIMARY KEY (`IDCliente`))
-ENGINE = InnoDB;
+  `Estado` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (`IDFactura`),
+  INDEX `IDCliente` (`IDCliente` ASC) VISIBLE,
+  INDEX `IDEmpleado` (`IDEmpleado` ASC) VISIBLE,
+  CONSTRAINT `IDCliente_FC`
+    FOREIGN KEY (`IDCliente`)
+    REFERENCES `mydb`.`clientes` (`IDCliente`),
+  CONSTRAINT `IDEmpleado_FC`
+    FOREIGN KEY (`IDEmpleado`)
+    REFERENCES `mydb`.`empleados` (`IDEmpleados`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Maestro_Procesos`
+-- Table `mydb`.`maestro_procesos`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Maestro_Procesos` (
+CREATE TABLE IF NOT EXISTS `mydb`.`maestro_procesos` (
   `IDProceso` INT NOT NULL,
   `Descripcion` VARCHAR(45) NOT NULL,
   `Orden` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`IDProceso`))
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Productos`
+-- Table `mydb`.`productos`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Productos` (
-  `IDProductos` INT NOT NULL,
+CREATE TABLE IF NOT EXISTS `mydb`.`productos` (
+  `IDProducto` VARCHAR(45) NOT NULL,
   `IDCliente` INT NOT NULL,
   `IDProceso` INT NOT NULL,
   `Marca` VARCHAR(45) NOT NULL,
@@ -137,55 +148,101 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Productos` (
   `Margen` VARCHAR(45) NOT NULL,
   `P. Venta` INT NOT NULL,
   `Descripcion` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`IDProductos`),
-  INDEX `IDClientes` (`IDCliente` ASC) ,
-  INDEX `IDProceso` (`IDProceso` ASC) ,
+  PRIMARY KEY (`IDProducto`),
+  INDEX `IDClientes` (`IDCliente` ASC) VISIBLE,
+  INDEX `IDProceso` (`IDProceso` ASC) VISIBLE,
   CONSTRAINT `IDClientes`
     FOREIGN KEY (`IDCliente`)
-    REFERENCES `mydb`.`Clientes` (`IDCliente`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES `mydb`.`clientes` (`IDCliente`),
   CONSTRAINT `IDProcesoFK`
     FOREIGN KEY (`IDProceso`)
-    REFERENCES `mydb`.`Maestro_Procesos` (`IDProceso`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `mydb`.`maestro_procesos` (`IDProceso`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Recetas`
+-- Table `mydb`.`factura_detalle`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Recetas` (
+CREATE TABLE IF NOT EXISTS `mydb`.`factura_detalle` (
+  `IDFactura` INT NOT NULL,
+  `IDProducto` VARCHAR(45) NOT NULL,
+  `Cantidad` INT NOT NULL,
+  `Descripcion` VARCHAR(45) NOT NULL,
+  `IVA` VARCHAR(45) NOT NULL,
+  `Precio` DECIMAL(8,2) NOT NULL,
+  `Importe` DECIMAL(8,2) NOT NULL,
+  `Estado` VARCHAR(45) NOT NULL,
+  INDEX `IDFactura` (`IDFactura` ASC) VISIBLE,
+  INDEX `IDProducto` (`IDFactura` ASC) VISIBLE,
+  INDEX `IDProducto_idx` (`IDProducto` ASC) VISIBLE,
+  CONSTRAINT `IDFactura_FD`
+    FOREIGN KEY (`IDFactura`)
+    REFERENCES `mydb`.`factura_cabecera` (`IDFactura`),
+  CONSTRAINT `IDProducto_FD`
+    FOREIGN KEY (`IDProducto`)
+    REFERENCES `mydb`.`productos` (`IDProducto`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`formas_pago`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`formas_pago` (
+  `IDPago` INT NOT NULL,
+  `Descripcion` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`IDPago`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`proveedores`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`proveedores` (
+  `IDProveedores` INT NOT NULL,
+  `Nombre` VARCHAR(45) NOT NULL,
+  `Telefono` VARCHAR(45) NOT NULL,
+  `Direccion` VARCHAR(30) NOT NULL,
+  `Contactos` VARCHAR(45) NOT NULL,
+  `Mail` VARCHAR(45) NOT NULL,
+  `CUIT` INT NOT NULL,
+  PRIMARY KEY (`IDProveedores`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`recetas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`recetas` (
   `IDReceta` INT NOT NULL,
-  `IDProductos` INT NOT NULL,
+  `IDProductos` VARCHAR(45) NOT NULL,
   `IDProceso` INT NOT NULL,
   `Cantidad` INT NOT NULL,
   PRIMARY KEY (`IDReceta`),
-  INDEX `IDProducto` (`IDProductos` ASC) ,
-  INDEX `IDProceso` (`IDProceso` ASC) ,
+  INDEX `IDProducto` (`IDProductos` ASC) VISIBLE,
+  INDEX `IDProceso` (`IDProceso` ASC) VISIBLE,
   CONSTRAINT `IDProceso`
     FOREIGN KEY (`IDProceso`)
-    REFERENCES `mydb`.`Maestro_Procesos` (`IDProceso`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES `mydb`.`maestro_procesos` (`IDProceso`),
   CONSTRAINT `IDProducto`
     FOREIGN KEY (`IDProductos`)
-    REFERENCES `mydb`.`Productos` (`IDProductos`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `mydb`.`productos` (`IDProducto`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Materiales_Producto`
+-- Table `mydb`.`Materiales`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Materiales_Producto` (
+CREATE TABLE IF NOT EXISTS `mydb`.`Materiales` (
   `IDMaterial` INT NOT NULL,
   `IDProveedor` INT NOT NULL,
   `IDCliente` INT NOT NULL,
   `IDAlmacen` INT NOT NULL,
-  `IDProducto` INT NOT NULL,
+  `IDProducto` VARCHAR(45) NOT NULL,
   `IDReceta` INT NOT NULL,
   `Planos` VARCHAR(45) NOT NULL,
   `Tipo` VARCHAR(45) NOT NULL,
@@ -198,93 +255,139 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Materiales_Producto` (
   `Fecha_Alta` DATETIME NOT NULL,
   `Descripcion` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`IDMaterial`),
-  INDEX `IDProveedor` (`IDProveedor` ASC) ,
-  INDEX `IDCliente` (`IDCliente` ASC) ,
-  INDEX `IDAlmacen` (`IDAlmacen` ASC) ,
-  INDEX `IDProducto` (`IDProducto` ASC) ,
-  INDEX `IDReceta` (`IDReceta` ASC) ,
-  CONSTRAINT `IDProveedor_MP`
-    FOREIGN KEY (`IDProveedor`)
-    REFERENCES `mydb`.`Proveedores` (`IDProveedores`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDClientes_MP`
-    FOREIGN KEY (`IDCliente`)
-    REFERENCES `mydb`.`Clientes` (`IDCliente`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+  INDEX `IDProveedor` (`IDProveedor` ASC) VISIBLE,
+  INDEX `IDCliente` (`IDCliente` ASC) VISIBLE,
+  INDEX `IDAlmacen` (`IDAlmacen` ASC) VISIBLE,
+  INDEX `IDProducto` (`IDProducto` ASC) VISIBLE,
+  INDEX `IDReceta` (`IDReceta` ASC) VISIBLE,
   CONSTRAINT `IDAlmacen_MP`
     FOREIGN KEY (`IDAlmacen`)
-    REFERENCES `mydb`.`Almacen` (`IDAlmacen`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES `mydb`.`almacen` (`IDAlmacen`),
+  CONSTRAINT `IDClientes_MP`
+    FOREIGN KEY (`IDCliente`)
+    REFERENCES `mydb`.`clientes` (`IDCliente`),
   CONSTRAINT `IDProducto_MP`
     FOREIGN KEY (`IDProducto`)
-    REFERENCES `mydb`.`Productos` (`IDProductos`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES `mydb`.`productos` (`IDProducto`),
+  CONSTRAINT `IDProveedor_MP`
+    FOREIGN KEY (`IDProveedor`)
+    REFERENCES `mydb`.`proveedores` (`IDProveedores`),
   CONSTRAINT `IDReceta_MP`
     FOREIGN KEY (`IDReceta`)
-    REFERENCES `mydb`.`Recetas` (`IDReceta`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `mydb`.`recetas` (`IDReceta`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`OrdenPedidoCompras`
+-- Table `mydb`.`OrdenPedidoComprasCabecera`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`OrdenPedidoCompras` (
+CREATE TABLE IF NOT EXISTS `mydb`.`OrdenPedidoComprasCabecera` (
   `IDPedido` INT NOT NULL,
   `IDArticulos` INT NOT NULL,
   `IDMaterial` INT NOT NULL,
   `IDProveedor` INT NOT NULL,
   `IDSucursal` INT NOT NULL,
   `IDEmpleado` INT NOT NULL,
-  `Cantidad` INT NOT NULL,
   `FechaCreacion` DATETIME NOT NULL,
-  `Descripcion` VARCHAR(45) NOT NULL,
-  `P. Unitario` INT NOT NULL,
-  `IVA` VARCHAR(10) NOT NULL,
-  `Importe` INT NOT NULL,
+  `FechaEntrega` DATETIME NOT NULL,
   PRIMARY KEY (`IDPedido`),
-  INDEX `IDArticulos` (`IDArticulos` ASC) ,
-  INDEX `IDMaterial` (`IDMaterial` ASC) ,
-  INDEX `IDProveedor` (`IDProveedor` ASC) ,
-  INDEX `IDSucursal` (`IDSucursal` ASC) ,
-  INDEX `IDEmpleado` (`IDEmpleado` ASC) ,
+  INDEX `IDArticulos` (`IDArticulos` ASC) VISIBLE,
+  INDEX `IDMaterial` (`IDMaterial` ASC) VISIBLE,
+  INDEX `IDProveedor` (`IDProveedor` ASC) VISIBLE,
+  INDEX `IDSucursal` (`IDSucursal` ASC) VISIBLE,
+  INDEX `IDEmpleado` (`IDEmpleado` ASC) VISIBLE,
   CONSTRAINT `IDArticulos_OPC`
     FOREIGN KEY (`IDArticulos`)
-    REFERENCES `mydb`.`Articulos` (`IDArticulos`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDMaterial_OPC`
-    FOREIGN KEY (`IDMaterial`)
-    REFERENCES `mydb`.`Materiales_Producto` (`IDMaterial`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDProveedor_OPC`
-    FOREIGN KEY (`IDProveedor`)
-    REFERENCES `mydb`.`Proveedores` (`IDProveedores`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDSucursal_OPC`
-    FOREIGN KEY (`IDSucursal`)
-    REFERENCES `mydb`.`Sucursal` (`IDSucursal`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES `mydb`.`articulos` (`IDArticulos`),
   CONSTRAINT `IDEmpleado_OPC`
     FOREIGN KEY (`IDEmpleado`)
-    REFERENCES `mydb`.`Empleados` (`IDEmpleados`)
+    REFERENCES `mydb`.`empleados` (`IDEmpleados`),
+  CONSTRAINT `IDMaterial_OPC`
+    FOREIGN KEY (`IDMaterial`)
+    REFERENCES `mydb`.`Materiales` (`IDMaterial`),
+  CONSTRAINT `IDProveedor_OPC`
+    FOREIGN KEY (`IDProveedor`)
+    REFERENCES `mydb`.`proveedores` (`IDProveedores`),
+  CONSTRAINT `IDSucursal_OPC`
+    FOREIGN KEY (`IDSucursal`)
+    REFERENCES `mydb`.`sucursal` (`IDSucursal`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`historial_compra`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`historial_compra` (
+  `IDPedido` INT NOT NULL,
+  `Descripcion` VARCHAR(45) NOT NULL,
+  `Fecha` DATETIME NOT NULL,
+  `Costo` INT NOT NULL,
+  INDEX `IDPedido` (`IDPedido` ASC) VISIBLE,
+  CONSTRAINT `IDPedido_HC`
+    FOREIGN KEY (`IDPedido`)
+    REFERENCES `mydb`.`OrdenPedidoComprasCabecera` (`IDPedido`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`venta_producto_cabecera`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`venta_producto_cabecera` (
+  `IDVenta` INT NOT NULL,
+  `IDProducto` VARCHAR(45) NOT NULL,
+  `IDCliente` INT NOT NULL,
+  `IDEmpleado` INT NOT NULL,
+  `IDPago` INT NOT NULL,
+  `Cantidad` VARCHAR(45) NOT NULL,
+  `Importe` INT NOT NULL,
+  `FechaCreacion` DATETIME NOT NULL,
+  `FechaEntrega` DATETIME NOT NULL,
+  PRIMARY KEY (`IDVenta`),
+  INDEX `IDProducto` (`IDProducto` ASC) VISIBLE,
+  INDEX `IDCliente` (`IDCliente` ASC) VISIBLE,
+  INDEX `IDEmpleado` (`IDEmpleado` ASC) VISIBLE,
+  INDEX `IDPago` (`IDPago` ASC) VISIBLE,
+  CONSTRAINT `IDClienteFK_VP`
+    FOREIGN KEY (`IDCliente`)
+    REFERENCES `mydb`.`clientes` (`IDCliente`),
+  CONSTRAINT `IDEmpleadoFK_VP`
+    FOREIGN KEY (`IDEmpleado`)
+    REFERENCES `mydb`.`empleados` (`IDEmpleados`),
+  CONSTRAINT `IDProductoFK_VP`
+    FOREIGN KEY (`IDProducto`)
+    REFERENCES `mydb`.`productos` (`IDProducto`),
+  CONSTRAINT `IDPago`
+    FOREIGN KEY (`IDPago`)
+    REFERENCES `mydb`.`formas_pago` (`IDPago`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
- 
+
 -- -----------------------------------------------------
--- Table `mydb`.`Operarios_Almacen`
+-- Table `mydb`.`historial_ventas`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Operarios_Almacen` (
+CREATE TABLE IF NOT EXISTS `mydb`.`historial_ventas` (
+  `IDVenta` INT NOT NULL,
+  `Descripcion` VARCHAR(45) NOT NULL,
+  `Fecha` VARCHAR(45) NOT NULL,
+  `Insumo` VARCHAR(45) NOT NULL,
+  INDEX `IDVenta` (`IDVenta` ASC) VISIBLE,
+  CONSTRAINT `IDVenta_HV`
+    FOREIGN KEY (`IDVenta`)
+    REFERENCES `mydb`.`venta_producto_cabecera` (`IDVenta`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`operarios_almacen`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`operarios_almacen` (
   `IDOperarioA` INT NOT NULL,
   `IDAlmacen` INT NOT NULL,
   `Nombre` VARCHAR(45) NOT NULL,
@@ -293,110 +396,62 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Operarios_Almacen` (
   `Contactos` VARCHAR(45) NOT NULL,
   `DNI` INT NOT NULL,
   PRIMARY KEY (`IDOperarioA`),
-  INDEX `IDAlmacen` (`IDAlmacen` ASC) ,
+  INDEX `IDAlmacen` (`IDAlmacen` ASC) VISIBLE,
   CONSTRAINT `IDAlmacen_OA`
     FOREIGN KEY (`IDAlmacen`)
-    REFERENCES `mydb`.`Almacen` (`IDAlmacen`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `mydb`.`almacen` (`IDAlmacen`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Plantas_Fabricacion`
+-- Table `mydb`.`plantas_fabricacion`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Plantas_Fabricacion` (
+CREATE TABLE IF NOT EXISTS `mydb`.`plantas_fabricacion` (
   `IDPlanta` INT NOT NULL,
   `Direccion` VARCHAR(45) NOT NULL,
   `Telefono` VARCHAR(45) NOT NULL,
   `Codigo Postal` INT NOT NULL,
   PRIMARY KEY (`IDPlanta`))
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Orden_Acopio`
+-- Table `mydb`.`OrdenAcopioCabecera`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Orden_Acopio` (
+CREATE TABLE IF NOT EXISTS `mydb`.`OrdenAcopioCabecera` (
   `IDAcopio` INT NOT NULL,
   `IDOperarioA` INT NOT NULL,
   `IDMaterial` INT NOT NULL,
   `IDPlanta` INT NOT NULL,
   `IDAlmacen` INT NOT NULL,
-  `Cantidad` VARCHAR(45) NOT NULL,
   `Destino` VARCHAR(45) NOT NULL,
-  `Detalles` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`IDAcopio`),
-  INDEX `IDOperarioAFK` (`IDOperarioA` ASC) ,
-  INDEX `IDMaterial_idx` (`IDMaterial` ASC) ,
-  INDEX `IDAlmacen_idx` (`IDAlmacen` ASC) ,
-  INDEX `IDPlantaFK` (`IDPlanta` ASC) ,
-  CONSTRAINT `IDOperarioAFK_OAC`
-    FOREIGN KEY (`IDOperarioA`)
-    REFERENCES `mydb`.`Operarios_Almacen` (`IDOperarioA`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDMaterial_OAC`
-    FOREIGN KEY (`IDMaterial`)
-    REFERENCES `mydb`.`Materiales_Producto` (`IDMaterial`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDPlanta_OAC`
-    FOREIGN KEY (`IDPlanta`)
-    REFERENCES `mydb`.`Plantas_Fabricacion` (`IDPlanta`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+  INDEX `IDOperarioAFK` (`IDOperarioA` ASC) VISIBLE,
+  INDEX `IDMaterial_idx` (`IDMaterial` ASC) VISIBLE,
+  INDEX `IDAlmacen_idx` (`IDAlmacen` ASC) VISIBLE,
+  INDEX `IDPlantaFK` (`IDPlanta` ASC) VISIBLE,
   CONSTRAINT `IDAlmacen_OAC`
     FOREIGN KEY (`IDAlmacen`)
-    REFERENCES `mydb`.`Almacen` (`IDAlmacen`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `mydb`.`almacen` (`IDAlmacen`),
+  CONSTRAINT `IDMaterial_OAC`
+    FOREIGN KEY (`IDMaterial`)
+    REFERENCES `mydb`.`Materiales` (`IDMaterial`),
+  CONSTRAINT `IDOperarioAFK_OAC`
+    FOREIGN KEY (`IDOperarioA`)
+    REFERENCES `mydb`.`operarios_almacen` (`IDOperarioA`),
+  CONSTRAINT `IDPlanta_OAC`
+    FOREIGN KEY (`IDPlanta`)
+    REFERENCES `mydb`.`plantas_fabricacion` (`IDPlanta`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`FacturaC`
+-- Table `mydb`.`orden_fabricacion_cabecera`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`FacturaC` (
-  `IDFactura` INT NOT NULL,
-  `IDCliente` INT NOT NULL,
-  `IDEmpleado` INT NOT NULL,
-  `Fecha` DATE NOT NULL,
-  `FechaEntrega` DATE NOT NULL,
-  `Direccion` VARCHAR(45) NOT NULL,
-  `Tipo` VARCHAR(45) NOT NULL,
-  `Descripcion` VARCHAR(45) NULL,
-  `Estado` VARCHAR(20) NOT NULL,
-  PRIMARY KEY (`IDFactura`),
-  INDEX `IDCliente` (`IDCliente` ASC) ,
-  INDEX `IDEmpleado` (`IDEmpleado` ASC) ,
-  CONSTRAINT `IDCliente_FC`
-    FOREIGN KEY (`IDCliente`)
-    REFERENCES `mydb`.`Clientes` (`IDCliente`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDEmpleado_FC`
-    FOREIGN KEY (`IDEmpleado`)
-    REFERENCES `mydb`.`Empleados` (`IDEmpleados`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`Formas_Pago`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Formas_Pago` (
-  `IDPago` INT NOT NULL,
-  `Descripcion` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`IDPago`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`Orden_Fabricacion`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Orden_Fabricacion` (
+CREATE TABLE IF NOT EXISTS `mydb`.`orden_fabricacion_cabecera` (
   `IDFabricado` INT NOT NULL,
   `IDFactura` INT NOT NULL,
   `IDPlanta` INT NOT NULL,
@@ -404,167 +459,155 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Orden_Fabricacion` (
   `IDPago` INT NOT NULL,
   `IDEmpleado` INT NOT NULL,
   `FechaCreacion` DATETIME NOT NULL,
-  `FechaAlta` DATETIME NOT NULL,
-  `FechaEntrega` DATETIME NOT NULL,
-  `Descripcion` VARCHAR(45) NOT NULL,
-  `Direccion` VARCHAR(45) NOT NULL,
   `Contacto` VARCHAR(45) NOT NULL,
-  `Cantidad` INT NOT NULL,
+  `FechaEntrega` DATETIME NOT NULL,
   PRIMARY KEY (`IDFabricado`),
-  INDEX `IDFactura` (`IDFactura` ASC) ,
-  INDEX `IDPlanta` (`IDPlanta` ASC) ,
-  INDEX `IDCliente` (`IDCliente` ASC) ,
-  INDEX `IDPago` (`IDPago` ASC) ,
-  INDEX `IDEmpleado` (`IDEmpleado` ASC) ,
-  CONSTRAINT `IDFactura_OF`
-    FOREIGN KEY (`IDFactura`)
-    REFERENCES `mydb`.`FacturaC` (`IDFactura`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDPlanta_OF`
-    FOREIGN KEY (`IDPlanta`)
-    REFERENCES `mydb`.`Plantas_Fabricacion` (`IDPlanta`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+  INDEX `IDFactura` (`IDFactura` ASC) VISIBLE,
+  INDEX `IDPlanta` (`IDPlanta` ASC) VISIBLE,
+  INDEX `IDCliente` (`IDCliente` ASC) VISIBLE,
+  INDEX `IDPago` (`IDPago` ASC) VISIBLE,
+  INDEX `IDEmpleado` (`IDEmpleado` ASC) VISIBLE,
   CONSTRAINT `IDCliente_OF`
     FOREIGN KEY (`IDCliente`)
-    REFERENCES `mydb`.`Clientes` (`IDCliente`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDPago_OF`
-    FOREIGN KEY (`IDPago`)
-    REFERENCES `mydb`.`Formas_Pago` (`IDPago`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES `mydb`.`clientes` (`IDCliente`),
   CONSTRAINT `IDEmpleado_OF`
     FOREIGN KEY (`IDEmpleado`)
-    REFERENCES `mydb`.`Empleados` (`IDEmpleados`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `mydb`.`empleados` (`IDEmpleados`),
+  CONSTRAINT `IDFactura_OF`
+    FOREIGN KEY (`IDFactura`)
+    REFERENCES `mydb`.`factura_cabecera` (`IDFactura`),
+  CONSTRAINT `IDPago_OF`
+    FOREIGN KEY (`IDPago`)
+    REFERENCES `mydb`.`formas_pago` (`IDPago`),
+  CONSTRAINT `IDPlanta_OF`
+    FOREIGN KEY (`IDPlanta`)
+    REFERENCES `mydb`.`plantas_fabricacion` (`IDPlanta`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Historial_Compra`
+-- Table `mydb`.`orden_fabricacion_detalle`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Historial_Compra` (
-  `IDPedido` INT NOT NULL,
-  `Descripcion` VARCHAR(45) NOT NULL,
-  `Fecha` DATETIME NOT NULL,
-  `Costo` INT NOT NULL,
-  INDEX `IDPedido` (`IDPedido` ASC) ,
-  CONSTRAINT `IDPedido_HC`
-    FOREIGN KEY (`IDPedido`)
-    REFERENCES `mydb`.`OrdenPedidoCompras` (`IDPedido`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`Venta_Producto`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Venta_Producto` (
-  `IDVenta` INT NOT NULL,
-  `IDProducto` INT NOT NULL,
-  `IDCliente` INT NOT NULL,
-  `IDEmpleado` INT NOT NULL,
-  `IDPago` INT NOT NULL,
-  `Cantidad` VARCHAR(45) NOT NULL,
-  `Descripcion` VARCHAR(45) NOT NULL,
-  `IVA` INT NOT NULL,
-  `Precio` INT NOT NULL,
-  `Importe` INT NOT NULL,
-  PRIMARY KEY (`IDVenta`),
-  INDEX `IDProducto` (`IDProducto` ASC) ,
-  INDEX `IDCliente` (`IDCliente` ASC) ,
-  INDEX `IDEmpleado` (`IDEmpleado` ASC) ,
-  INDEX `IDPago` (`IDPago` ASC) ,
-  CONSTRAINT `IDProductoFK_VP`
-    FOREIGN KEY (`IDProducto`)
-    REFERENCES `mydb`.`Productos` (`IDProductos`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDClienteFK_VP`
-    FOREIGN KEY (`IDCliente`)
-    REFERENCES `mydb`.`Clientes` (`IDCliente`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `IDEmpleadoFK_VP`
-    FOREIGN KEY (`IDEmpleado`)
-    REFERENCES `mydb`.`Empleados` (`IDEmpleados`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`Historial_Ventas`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Historial_Ventas` (
-  `IDVenta` INT NOT NULL,
-  `Descripcion` VARCHAR(45) NOT NULL,
-  `Fecha` VARCHAR(45) NOT NULL,
-  `Insumo` VARCHAR(45) NOT NULL,
-  INDEX `IDVenta` (`IDVenta` ASC) ,
-  CONSTRAINT `IDVenta_HV`
-    FOREIGN KEY (`IDVenta`)
-    REFERENCES `mydb`.`Venta_Producto` (`IDVenta`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`Orden_Fabricacion_Detalle`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Orden_Fabricacion_Detalle` (
+CREATE TABLE IF NOT EXISTS `mydb`.`orden_fabricacion_detalle` (
   `IDFabricado` INT NOT NULL,
-  `IDProducto` INT NOT NULL,
+  `IDProducto` VARCHAR(45) NOT NULL,
   `Item` INT NOT NULL,
   `Cantidad` INT NOT NULL,
   `Descripcion` VARCHAR(45) NOT NULL,
   `P.Unitario` DECIMAL(8,2) NOT NULL,
   `Estado` VARCHAR(45) NOT NULL,
   `Importe` DECIMAL(8,2) NOT NULL,
-  INDEX `IDFabricado` (`IDFabricado` ASC) ,
-  INDEX `IDProducto` (`IDProducto` ASC) ,
+  INDEX `IDFabricado` (`IDFabricado` ASC) VISIBLE,
+  INDEX `IDProducto` (`IDProducto` ASC) VISIBLE,
   CONSTRAINT `IDFabricado_OFD`
     FOREIGN KEY (`IDFabricado`)
-    REFERENCES `mydb`.`Orden_Fabricacion` (`IDFabricado`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES `mydb`.`orden_fabricacion_cabecera` (`IDFabricado`),
   CONSTRAINT `IDProducto_OFD`
     FOREIGN KEY (`IDProducto`)
-    REFERENCES `mydb`.`Productos` (`IDProductos`)
+    REFERENCES `mydb`.`productos` (`IDProducto`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`OrdenAcopioDetalle`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`OrdenAcopioDetalle` (
+  `IDAcopio` INT NOT NULL,
+  `IDMaterial` INT NOT NULL,
+  `Cantidad` INT NOT NULL,
+  `PrecioUnitario` INT NOT NULL,
+  `Tipo` VARCHAR(45) NOT NULL,
+  `Planos` VARCHAR(45) NOT NULL,
+  `Proveedor` VARCHAR(45) NOT NULL,
+  `Stock` INT NOT NULL,
+  `UnidadMedida` VARCHAR(45) NOT NULL,
+  INDEX `IDAcopio` (`IDAcopio` ASC) INVISIBLE,
+  INDEX `IDMaterial` (`IDMaterial` ASC) VISIBLE,
+  CONSTRAINT `IDAcopio`
+    FOREIGN KEY (`IDAcopio`)
+    REFERENCES `mydb`.`OrdenAcopioCabecera` (`IDAcopio`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `IDMaterial`
+    FOREIGN KEY (`IDMaterial`)
+    REFERENCES `mydb`.`Materiales` (`IDMaterial`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Factura_Detalle`
+-- Table `mydb`.`materiales_producto_detalle`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Factura_Detalle` (
-  `IDFactura` INT NOT NULL,
-  `IDProducto` INT NOT NULL,
-  `Cantidad` INT NOT NULL,
+CREATE TABLE IF NOT EXISTS `mydb`.`materiales_producto_detalle` (
+  `IDMaterial` INT NOT NULL,
+  `Planos` VARCHAR(45) NOT NULL,
+  `Tipo` VARCHAR(45) NOT NULL,
+  `P.U` DECIMAL(8,2) NOT NULL,
+  `Stock` INT NOT NULL,
+  `U.M` VARCHAR(45) NOT NULL,
+  INDEX `IDMaterial` (`IDMaterial` ASC) VISIBLE,
+  CONSTRAINT `IDMaterial`
+    FOREIGN KEY (`IDMaterial`)
+    REFERENCES `mydb`.`Materiales` (`IDMaterial`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`venta_producto_detalle`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`venta_producto_detalle` (
+  `IDVenta` INT NOT NULL,
+  `IDProducto` VARCHAR(45) NOT NULL,
+  `IDProveedor` INT NOT NULL,
+  `Cantidad` VARCHAR(45) NOT NULL,
+  `Importe` VARCHAR(45) NOT NULL,
   `Descripcion` VARCHAR(45) NOT NULL,
   `IVA` VARCHAR(45) NOT NULL,
-  `Precio` DECIMAL(8,2) NOT NULL,
-  `Importe` DECIMAL(8,2) NOT NULL,
-  `Estado` VARCHAR(45) NOT NULL,
-  INDEX `IDFactura` (`IDFactura` ASC) ,
-  INDEX `IDProducto` (`IDFactura` ASC) ,
-  INDEX `IDProducto_idx` (`IDProducto` ASC) ,
-  CONSTRAINT `IDFactura_FD`
-    FOREIGN KEY (`IDFactura`)
-    REFERENCES `mydb`.`FacturaC` (`IDFactura`)
+  `P.U` VARCHAR(45) NOT NULL,
+  `U.M` VARCHAR(45) NOT NULL,
+  INDEX `IDVenta` (`IDVenta` ASC) VISIBLE,
+  INDEX `IDProducto` (`IDProducto` ASC) INVISIBLE,
+  INDEX `IDProveedor` (`IDProducto` ASC) VISIBLE,
+  INDEX `IDProveedor_idx` (`IDProveedor` ASC) VISIBLE,
+  CONSTRAINT `IDVenta`
+    FOREIGN KEY (`IDVenta`)
+    REFERENCES `mydb`.`venta_producto_cabecera` (`IDVenta`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `IDProducto_FD`
+  CONSTRAINT `IDProducto`
     FOREIGN KEY (`IDProducto`)
-    REFERENCES `mydb`.`Productos` (`IDProductos`)
+    REFERENCES `mydb`.`productos` (`IDProducto`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `IDProveedor`
+    FOREIGN KEY (`IDProveedor`)
+    REFERENCES `mydb`.`proveedores` (`IDProveedores`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`OrdenPedidoComprasDetalle`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`OrdenPedidoComprasDetalle` (
+  `IDPedido` INT NOT NULL,
+  `Cantidad` VARCHAR(45) NOT NULL,
+  `Stock` INT NOT NULL,
+  `P.U` VARCHAR(45) NOT NULL,
+  `U.M` VARCHAR(45) NOT NULL,
+  `Descripcion` VARCHAR(45) NOT NULL,
+  `Precio` DECIMAL(8,2) NOT NULL,
+  `IVA` VARCHAR(45) NOT NULL,
+  INDEX `IDPedido` (`IDPedido` ASC) VISIBLE,
+  CONSTRAINT `IDPedido`
+    FOREIGN KEY (`IDPedido`)
+    REFERENCES `mydb`.`OrdenPedidoComprasCabecera` (`IDPedido`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
